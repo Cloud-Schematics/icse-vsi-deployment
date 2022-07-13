@@ -97,6 +97,42 @@ variable "primary_security_group_ids" {
   }
 }
 
+variable "primary_interface_security_group" {
+  description = "Object describing a security group to create for the primary interface,"
+  type = object({
+    create = bool
+    rules = list(
+      object({
+        name      = string
+        direction = string
+        remote    = string
+        tcp = optional(
+          object({
+            port_max = number
+            port_min = number
+          })
+        )
+        udp = optional(
+          object({
+            port_max = number
+            port_min = number
+          })
+        )
+        icmp = optional(
+          object({
+            type = number
+            code = number
+          })
+        )
+      })
+    )
+  })
+  default = {
+    create = false
+    rules  = []
+  }
+}
+
 ##############################################################################
 
 ##############################################################################
@@ -104,7 +140,7 @@ variable "primary_security_group_ids" {
 ##############################################################################
 
 variable "secondary_subnet_zone_list" {
-  description = "List of secondary subnets to use for VSI. For each secondary subnet in this list, a network interface will be attached to each VSI in the same zone."
+  description = "(Optional) List of secondary subnets to use for VSI. For each secondary subnet in this list, a network interface will be attached to each VSI in the same zone."
   type = list(
     object({
       name               = string
@@ -112,6 +148,41 @@ variable "secondary_subnet_zone_list" {
       zone               = string
       cidr               = string
       security_group_ids = optional(list(string))
+    })
+  )
+  default = []
+}
+
+variable "secondary_interface_security_groups" {
+  description = "(Optional) List of secondary interface security groups to create."
+  type = list(
+    object({
+      subnet_name = string
+      rules = list(
+        object({
+          name      = string
+          direction = string
+          remote    = string
+          tcp = optional(
+            object({
+              port_max = number
+              port_min = number
+            })
+          )
+          udp = optional(
+            object({
+              port_max = number
+              port_min = number
+            })
+          )
+          icmp = optional(
+            object({
+              type = number
+              code = number
+            })
+          )
+        })
+      )
     })
   )
   default = []

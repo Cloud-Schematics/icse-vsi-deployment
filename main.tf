@@ -29,9 +29,20 @@ locals {
           # interface
           for interface in var.secondary_subnet_zone_list :
           {
-            name               = interface.name
-            id                 = interface.id
-            security_group_ids = interface.security_group_ids
+            name = interface.name
+            id   = interface.id
+            security_group_ids = (
+              # if no group
+              interface.security_group_ids == null && !contains(var.secondary_interface_security_groups.*.name, interface.name)
+              # null
+              ? null
+              # if no ids
+              : interface.security_group_ids == null
+              # get id for created group
+              ? [module.secondary_network_interface_security_groups[interface.name].groups[0].id]
+              # otherwise combine both
+              : concat(interface.security_group_ids, module.secondary_network_interface_security_groups[interface.name].groups[0].id)
+            )
           } if interface.zone == var.subnet_zone_list[subnet].zone
         ]
       }
@@ -51,18 +62,32 @@ module "vsi" {
     for instance in local.vsi_list :
     (instance.name) => instance
   }
-  image_id                         = data.ibm_is_image.image.id
-  zone                             = each.value.zone
-  primary_subnet_id                = each.value.primary_subnet_id
-  name                             = each.value.name
-  secondary_subnets                = each.value.secondary_subnets
+  image_id          = data.ibm_is_image.image.id
+  zone              = each.value.zone
+  primary_subnet_id = each.value.primary_subnet_id
+  name              = each.value.name
+  secondary_subnets = each.value.secondary_subnets
+  primary_security_group_ids = (
+    # If both sg ids and not create sg
+    var.primary_security_group_ids == null && var.primary_interface_security_group.create != true
+    # null
+    ? null
+    # if no ids provided and create is true  
+    : var.primary_security_group_ids == null
+    # list with only created sg id
+    ? [module.primary_interface_security_group["${var.deployment_name}-primary-sg"].groups[0].id]
+    # otherwise combine lists
+    : concat(
+      [module.primary_interface_security_group["${var.deployment_name}-primary-sg"].groups[0].id],
+      var.primary_security_group_ids
+    )
+  )
   boot_volume_encryption_key       = var.boot_volume_encryption_key
   prefix                           = var.prefix
   tags                             = var.tags
   resource_group_id                = var.resource_group_id
   vpc_id                           = var.vpc_id
   ssh_key_ids                      = var.ssh_key_ids
-  primary_security_group_ids       = var.primary_security_group_ids
   profile                          = var.profile
   user_data                        = var.user_data
   allow_ip_spoofing                = var.allow_ip_spoofing
