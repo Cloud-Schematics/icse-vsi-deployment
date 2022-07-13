@@ -4,10 +4,7 @@
 
 module "primary_network_security_group" {
   source = "github.com/Cloud-Schematics/vpc-security-group-module"
-  for_each = var.primary_interface_security_group.create != true ? {} : {
-    name  = "${var.deployment_name}-primary-sg"
-    rules = var.primary_interface_security_group.rules
-  }
+  count             = var.primary_interface_security_group.create == true ? 1 : 0
   prefix            = var.prefix
   tags              = var.tags
   vpc_id            = var.vpc_id
