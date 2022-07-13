@@ -75,10 +75,10 @@ module "vsi" {
     # if no ids provided and create is true  
     : var.primary_security_group_ids == null
     # list with only created sg id
-    ? [module.primary_interface_security_group[0].groups[0].id]
+    ? [module.primary_network_security_group[0].groups[0].id]
     # otherwise combine lists
     : concat(
-      [module.primary_interface_security_group[0].groups[0].id],
+      [module.primary_network_security_group[0].groups[0].id],
       var.primary_security_group_ids
     )
   )
