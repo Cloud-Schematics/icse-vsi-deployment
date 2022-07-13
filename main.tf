@@ -78,7 +78,7 @@ module "vsi" {
     ? [module.primary_network_security_group[0].groups[0].id]
     # otherwise combine lists
     : concat(
-      [module.primary_network_security_group[0].groups[0].id],
+      var.primary_interface_security_group.create == true ? [module.primary_network_security_group[0].groups[0].id] : [],
       var.primary_security_group_ids
     )
   )
