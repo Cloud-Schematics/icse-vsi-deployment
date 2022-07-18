@@ -4,7 +4,7 @@
 
 data "ibm_is_image" "image" {
   count = var.image_id == true ? 0 : 1
-  name  = var.image_name
+  name = var.image_name
 }
 
 ##############################################################################
@@ -37,21 +37,20 @@ locals {
             name = interface.name
             id   = interface.id
             security_group_ids = (
-              # if null or empty secondary and interface groups
-              local.no_secondary_security_groups_created && (
-                interface.security_group_ids == null
-                || interface.security_group_ids == []
-              )
-              ? null
-              # null if no secondary interface groups created by module and null group ids
-              : local.no_secondary_security_groups_created && interface.security_group_ids != null
-              # use only interface ids if not empty; null if empty
-              ? (length(interface.security_group_ids) == 0 ? null : interface.security_group_ids)
-              # otherwise concat with created groups
+              # no secondary groups and null sg ids 
+              local.no_secondary_security_groups_created && interface.security_group_ids == null
+              ? null # null
+              # no secondary groups and empty array of sg ids
+              : local.no_secondary_security_groups_created && length(interface.security_group_ids) == 0
+              ? null # null
+              # if not created but ids
+              : local.no_secondary_security_groups_created
+              # use ids
+              ? interface.security_group_ids
+              # otherwise concat list of created ids with security group ids
               : concat(
-                # add empty group to list if null
-                (interface.security_group_ids == null ? [] : interface.security_group_ids),
-                module.secondary_network_interface_security_groups[interface.name].groups[0].id
+                [ module.secondary_network_interface_security_groups[interface.shortname].groups[0].id ],
+                interface.security_group_ids == null ? [] : interface.security_group_ids # use empty array if null
               )
             )
           } if interface.zone == var.subnet_zone_list[subnet].zone

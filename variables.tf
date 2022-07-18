@@ -153,6 +153,8 @@ variable "secondary_subnet_zone_list" {
       id                 = string
       zone               = string
       cidr               = string
+      # optional interface reference shortname used for secondary security group creation
+      shortname          = optional(string)       
       security_group_ids = optional(list(string))
       allow_ip_spoofing  = optional(bool)
     })
@@ -164,7 +166,7 @@ variable "secondary_interface_security_groups" {
   description = "(Optional) List of secondary interface security groups to create."
   type = list(
     object({
-      subnet_name = string
+      subnet_shortname = string
       rules = list(
         object({
           name      = string

@@ -27,7 +27,7 @@ module "secondary_network_interface_security_groups" {
   source = "github.com/Cloud-Schematics/vpc-security-group-module"
   for_each = {
     for group in var.secondary_interface_security_groups :
-    (group.subnet_name) => group
+    (group.subnet_shortname) => group
   }
   prefix            = var.prefix
   tags              = var.tags
