@@ -13,6 +13,10 @@ data "ibm_is_image" "image" {
 ##############################################################################
 
 locals {
+  no_secondary_security_groups_created = (
+    var.secondary_interface_security_groups == null
+    || var.secondary_network_interface_security_groups == []
+  )
   vsi_list = flatten([
     # For each subnet in the list. Use range to prevent error for values
     # not known until after apply
@@ -32,16 +36,22 @@ locals {
             name = interface.name
             id   = interface.id
             security_group_ids = (
-              # if no group
-              interface.security_group_ids == null && !contains(var.secondary_interface_security_groups.*.name, interface.name)
-              # null
+              # if null or empty secondary and interface groups
+              local.no_secondary_security_groups_created && (
+                interface.security_group_ids == null
+                || interface.security_group_ids == []
+              )
               ? null
-              # if no ids
-              : interface.security_group_ids == null
-              # get id for created group
-              ? [module.secondary_network_interface_security_groups[interface.name].groups[0].id]
-              # otherwise combine both
-              : concat(interface.security_group_ids, module.secondary_network_interface_security_groups[interface.name].groups[0].id)
+              # null if no secondary interface groups created by module and null group ids
+              : local.no_secondary_security_groups_created && interface.security_group_ids != null
+              # use only interface ids if not empty; null if empty
+              ? (length(interface.security_group_ids) == 0 ? null : interface.security_group_ids)
+              # otherwise concat with created groups
+              : concat(
+                # add empty group to list if null
+                (interface.security_group_ids == null ? [] : interface.security_group_ids),
+                module.secondary_network_interface_security_groups[interface.name].groups[0].id
+              )
             )
           } if interface.zone == var.subnet_zone_list[subnet].zone
         ]

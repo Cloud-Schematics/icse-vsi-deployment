@@ -3,7 +3,7 @@
 ##############################################################################
 
 module "primary_network_security_group" {
-  source = "github.com/Cloud-Schematics/vpc-security-group-module"
+  source            = "github.com/Cloud-Schematics/vpc-security-group-module"
   count             = var.primary_interface_security_group.create == true ? 1 : 0
   prefix            = var.prefix
   tags              = var.tags
