@@ -15,7 +15,7 @@ data "ibm_is_image" "image" {
 locals {
   no_secondary_security_groups_created = (
     var.secondary_interface_security_groups == null
-    || var.secondary_network_interface_security_groups == []
+    || var.secondary_interface_security_groups == []
   )
   vsi_list = flatten([
     # For each subnet in the list. Use range to prevent error for values
