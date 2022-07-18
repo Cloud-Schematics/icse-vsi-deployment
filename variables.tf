@@ -71,9 +71,15 @@ variable "deployment_name" {
 }
 
 variable "image_name" {
-  description = "Name of the image to use for VSI. Use the command `ibmcloud is images` to find availabled images in your region."
+  description = "Name of the image to use for VSI. Use the command `ibmcloud is images` to find availabled images in your region. Use this variable to provide image ID if `image_id` is set to `true`."
   type        = string
   default     = "ibm-ubuntu-18-04-6-minimal-amd64-3"
+}
+
+variable "image_id" {
+  description = "Use when providing image ID in `image_name` rather than the image name. This will prevent the lookup of image name from data."
+  type        = bool
+  default     = false
 }
 
 variable "profile" {

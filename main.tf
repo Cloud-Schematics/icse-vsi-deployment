@@ -3,7 +3,8 @@
 ##############################################################################
 
 data "ibm_is_image" "image" {
-  name = var.image_name
+  count = var.image_id == true ? 0 : 1
+  name  = var.image_name
 }
 
 ##############################################################################
@@ -72,7 +73,7 @@ module "vsi" {
     for instance in local.vsi_list :
     (instance.name) => instance
   }
-  image_id          = data.ibm_is_image.image.id
+  image_id          = var.image_id == true ? var.image_name : data.ibm_is_image.image[0].id
   zone              = each.value.zone
   primary_subnet_id = each.value.primary_subnet_id
   name              = each.value.name
