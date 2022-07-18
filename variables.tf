@@ -148,6 +148,7 @@ variable "secondary_subnet_zone_list" {
       zone               = string
       cidr               = string
       security_group_ids = optional(list(string))
+      allow_ip_spoofing  = optional(bool)
     })
   )
   default = []
