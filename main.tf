@@ -4,7 +4,7 @@
 
 data "ibm_is_image" "image" {
   count = var.image_id == true ? 0 : 1
-  name = var.image_name
+  name  = var.image_name
 }
 
 ##############################################################################
@@ -34,8 +34,10 @@ locals {
           # interface
           for interface in var.secondary_subnet_zone_list :
           {
-            name = interface.name
-            id   = interface.id
+            name              = interface.name
+            id                = interface.id
+            shorname          = interface.shorname
+            allow_ip_spoofing = interface.allow_ip_spoofing
             security_group_ids = (
               # no secondary groups and null sg ids 
               local.no_secondary_security_groups_created && interface.security_group_ids == null
@@ -49,7 +51,7 @@ locals {
               ? interface.security_group_ids
               # otherwise concat list of created ids with security group ids
               : concat(
-                [ module.secondary_network_interface_security_groups[interface.shortname].groups[0].id ],
+                [module.secondary_network_interface_security_groups[interface.shortname].groups[0].id],
                 interface.security_group_ids == null ? [] : interface.security_group_ids # use empty array if null
               )
             )

@@ -149,12 +149,12 @@ variable "secondary_subnet_zone_list" {
   description = "(Optional) List of secondary subnets to use for VSI. For each secondary subnet in this list, a network interface will be attached to each VSI in the same zone."
   type = list(
     object({
-      name               = string
-      id                 = string
-      zone               = string
-      cidr               = string
+      name = string
+      id   = string
+      zone = string
+      cidr = string
       # optional interface reference shortname used for secondary security group creation
-      shortname          = optional(string)       
+      shortname          = optional(string)
       security_group_ids = optional(list(string))
       allow_ip_spoofing  = optional(bool)
     })
