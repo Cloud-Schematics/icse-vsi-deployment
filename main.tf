@@ -36,7 +36,7 @@ locals {
           {
             name              = interface.name
             id                = interface.id
-            shorname          = interface.shorname
+            shortname         = interface.shortname
             allow_ip_spoofing = interface.allow_ip_spoofing
             security_group_ids = (
               # no secondary groups and null sg ids 
